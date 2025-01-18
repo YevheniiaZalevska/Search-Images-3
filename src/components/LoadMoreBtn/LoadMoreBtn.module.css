@@ -1,0 +1,29 @@
+.wrapperLoadBtn {
+    padding-bottom: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.loadBtn {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.loadBtn:hover {
+    background-color: #0056b3;
+}
+
+.loadBtn:active {
+    background-color: #004085;
+}
+
+.loadBtn:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
