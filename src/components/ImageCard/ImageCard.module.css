@@ -1,0 +1,8 @@
+.contanier {
+    width: 100%;
+    height: 250px;
+}
+
+.img {
+    object-fit: cover;
+}
