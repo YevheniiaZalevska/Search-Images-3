@@ -1,0 +1,16 @@
+.wrapperModalImg {
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+}
+
+.modalImg {
+    width: auto;
+    height: auto;
+    max-width: 85vw;
+    max-height: 85vh;
+    display: block;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
