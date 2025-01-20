@@ -10,7 +10,7 @@ const SearchBar = ({ onSubmit }) => {
     e.preventDefault();
 
     if (query.trim() === '') {
-      customToast('warn', 'Oops... Enter something');
+      customToast('warn', 'Oops... Write something');
       return;
     }
 
@@ -24,7 +24,7 @@ const SearchBar = ({ onSubmit }) => {
           type="text"
           name="query"
           className={s.searchInput}
-          placeholder="Search images and photos"
+          placeholder="Search images"
           value={query}
           onChange={e => setQuery(e.target.value.toLowerCase())}
         />
