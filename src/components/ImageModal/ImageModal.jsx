@@ -1,48 +1,56 @@
-import Modal from "react-modal";
-import s from "./ImageModal.module.css";
+import { useEffect } from 'react';
+import Modal from 'react-modal';
+import PropTypes from 'prop-types';
+import s from './ImageModal.module.css';
 
-const customStyles = {
-  overlay: {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(1, 1, 1, 0.9)",
-  },
-  content: {
-    top: "50%",
-    left: "50%",
-    right: "auto",
-    bottom: "auto",
-    marginRight: "-50%",
-    transform: "translate(-50%, -50%)",
-    padding: "0",
-    border: "none",
-    overflow: "hidden",
-    background: "transparent",
-  },
-};
+Modal.setAppElement('#root');
 
-const ImageModal = ({ modalIsOpen, closeModal, imageUrl, imageAlt }) => {
-  console.log(modalIsOpen);
+const ImageModal = ({ isOpen, onClose, image }) => {
+  useEffect(() => {
+    const handleKeyDown = e => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
 
-  Modal.setAppElement("#root");
+    if (isOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
+
+  const handleOverlayClick = e => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
 
   return (
     <Modal
-      isOpen={modalIsOpen}
-      onRequestClose={closeModal}
-      imageUrl={imageUrl}
-      imageAlt={imageAlt}
-      style={customStyles}
-      contentLabel="Example Modal"
+      isOpen={isOpen}
+      onRequestClose={onClose}
+      overlayClassName={s.overlay}
+      className={s.modal}
+      shouldCloseOnOverlayClick={true}
     >
-      <div className={s.wrapperModalImg}>
-        <img className={s.modalImg} src={imageUrl} alt={imageAlt} />
+      <div onClick={handleOverlayClick} className={s.container}>
+        <img src={image?.urls?.regular} alt={image?.alt_description} className={s.image} />
+        <p className={s.info}>Author: {image?.user?.name}</p>
       </div>
     </Modal>
   );
+};
+
+ImageModal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  image: PropTypes.shape({
+    largeImageURL: PropTypes.string,
+    tags: PropTypes.string,
+  }),
 };
 
 export default ImageModal;
