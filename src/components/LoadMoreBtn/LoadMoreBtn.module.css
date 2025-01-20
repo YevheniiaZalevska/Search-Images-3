@@ -1,29 +1,14 @@
-.wrapperLoadBtn {
-    padding-bottom: 20px;
-    display: flex;
-    justify-content: center;
-}
-
-.loadBtn {
+.loadMore {
+    text-align: center;
+    display: block;
+    margin: 20px auto;
     padding: 10px 20px;
     font-size: 16px;
-    background-color: #007bff;
-    color: white;
+    font-weight: 700;
+    color: #fff;
+    background-color: #4e75ff;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s ease;
-}
-
-.loadBtn:hover {
-    background-color: #0056b3;
-}
-
-.loadBtn:active {
-    background-color: #004085;
-}
-
-.loadBtn:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
 }
