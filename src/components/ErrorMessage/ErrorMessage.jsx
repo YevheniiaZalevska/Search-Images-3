@@ -1,10 +1,11 @@
-import s from "./ErrorMessage.module.css";
 
-const ErrorMessage = () => {
+import s from './ErrorMessage.module.css';
+
+const ErrorMessage = ({ message }) => {
   return (
-    <div className={s.error}>
-      <h2>Something went wrong! Try again....</h2>
-    </div>
+    <>
+      <p className={s.error}>{message}</p>
+    </>
   );
 };
 
