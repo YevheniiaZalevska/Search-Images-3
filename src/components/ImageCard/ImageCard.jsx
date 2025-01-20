@@ -1,16 +1,26 @@
-import s from './ImageCard.module.css'
+import PropTypes from 'prop-types';
+import s from './ImageCard.module.css';
 
-const ImageCard = ({ article, openModal }) => {
+const ImageCard = ({
+  info: {
+    alt_description,
+    urls: { small },
+  }, onClick
+}) => {
   return (
-    <div className={s.container}
-      onClick={() => {
-        console.log("Image clicked:", article.urls.small);
-        openModal(article.urls.regular);
-      }}
-    >
-      <img className={s.img} src={article.urls.small} alt={article.alt_description} />
+    <div>
+      <img className={s.galleryImage} src={small} alt={alt_description} onClick={onClick} />
     </div>
   );
+};
+
+ImageCard.propTypes = {
+  info: PropTypes.shape({
+    alt_description: PropTypes.string,
+    urls: PropTypes.shape({
+      small: PropTypes.string,
+    }),
+  }),
 };
 
 export default ImageCard;
