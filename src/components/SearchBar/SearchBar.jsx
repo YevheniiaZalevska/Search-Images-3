@@ -1,38 +1,43 @@
-import { useState } from "react";
-import s from "./SearchBar.module.css";
+import PropTypes from 'prop-types';
+import { useState } from 'react';
+import customToast from '../ErrorMessage/Toast';
+import s from './SearchBar.module.css';
 
 const SearchBar = ({ onSubmit }) => {
-  const [searchQuery, setSearchQuery] = useState("");
+  const [query, setQuery] = useState('');
 
-  const handleInputChange = (event) => {
-    setSearchQuery(event.target.value);
-    // console.log(event.target.value);
+  const handleSubmit = e => {
+    e.preventDefault();
+
+    if (query.trim() === '') {
+      customToast('warn', 'Oops... Enter something');
+      return;
+    }
+
+    onSubmit(query);
+    setQuery('');
   };
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    onSubmit(searchQuery);
-    setSearchQuery("");
-  };
-
   return (
     <header className={s.header}>
-      <form onSubmit={handleSubmit} className={s.form}>
+      <form onSubmit={handleSubmit} className={s.searchForm}>
         <input
-          className={s.input}
           type="text"
-          autoComplete="off"
-          autoFocus
+          name="query"
+          className={s.searchInput}
           placeholder="Search images and photos"
-          value={searchQuery}
-          onChange={handleInputChange}
+          value={query}
+          onChange={e => setQuery(e.target.value.toLowerCase())}
         />
-        <button className={s.button} type="submit">
+        <button type="submit" className={s.searchBtn}>
           Search
         </button>
       </form>
     </header>
   );
+};
+
+SearchBar.propTypes = {
+  onSubmit: PropTypes.func,
 };
 
 export default SearchBar;
