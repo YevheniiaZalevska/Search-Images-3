@@ -1,103 +1,101 @@
-import { useEffect, useState } from "react";
-import ImageGallery from "./components/ImageGallery/ImageGallery";
-import { fetchArticles } from "./components/services/api";
-import Loader from "./components/Loader/Loader";
-import ErrorMessage from "./components/ErrorMessage/ErrorMessage";
-import LoadMoreBtn from "./components/LoadMoreBtn/LoadMoreBtn";
-import toast from "react-hot-toast";
-import ImageModal from "./components/ImageModal/ImageModal";
-import SearchBar from "./components/SearchBar/SearchBar";
+import { useState, useEffect, useRef, useLayoutEffect } from 'react';
+import { Toaster } from 'react-hot-toast';
+import FetchImages from '../src/services/api.js';
+import SearchBar from './components/SearchBar/SearchBar';
+import ImageGallery from './components/ImageGallery/ImageGallery';
+import LoadMoreBtn from './components/LoadMoreBtn/LoadMoreBtn.jsx';
+import customToast from './components/ErrorMessage/ErrorMessage.jsx';
+import Loader from './components/Loader/Loader';
+import ErrorMessage from './components/ErrorMessage/Toast.jsx';
+import s from './App.module.css';
+import ImageModal from './components/ImageModal/ImageModal';
 
-function App() {
-  const [articles, setArticles] = useState([]); // зображення
-  const [searchValue, setSearchValue] = useState(""); // строка пошуку
-  const [isLoading, setIsLoading] = useState(false); // лоадер
-  const [isError, setIsError] = useState(false); // помилка
-  const [page, setPage] = useState(1); // номер сторінки
-  const [totalPages, setTotalPages] = useState(1); // перевірка кількості сторінок
-  const [modalIsOpen, setModalIsOpen] = useState(false); // модалка
-  const [selectedImage, setSelectedImage] = useState(""); // обрати зображення для модалки
+const App = () => {
+  const [query, setQuery] = useState('');
+  const [images, setImages] = useState([]);
+  const [page, setPage] = useState(1);
+  const [isShowButton, setIsShowButton] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const galleryRef = useRef(null);
 
   useEffect(() => {
-    if (!searchValue) return;
+    if (!query) return;
 
-    const getArticlesData = async () => {
+    const renderGallery = async () => {
       try {
         setIsLoading(true);
-        setIsError(false);
+        const res = await FetchImages(query, page);
+        console.log(res);
+        
 
-        if (page === 1) setArticles([]);
-
-        const fetchResult = await fetchArticles(searchValue, page);
-
-        const results = fetchResult.data.results;
-        if (results.length === 0 && page === 1) {
-          toast.error("Incorrect request");
+        if (res.results.length === 0) {
+          setIsShowButton(false);
+          customToast('warn', 'Sorry, there are no images matching your search');
+          setIsLoading(false);
           return;
         }
 
-        setArticles((prev) => [...prev, ...results]);
-        setTotalPages(fetchResult.data.total_pages);
-        toast.success("Data successfully loaded!");
-        console.log(fetchResult);
-      } catch (error) {
-        setIsError(true);
-        console.log("Error loading data!", error);
-        toast.error("Error loading data!");
-      } finally {
+        setImages(prev => [...prev, ...res.results]);
+        setIsShowButton(page < Math.ceil(res.total / 12) ? true : false);
+        setIsLoading(false);
+      } catch {
+        setError('Something went wrong! Please try again later.');
         setIsLoading(false);
       }
     };
-    getArticlesData();
-  }, [searchValue, page]);
 
-  // Фукнція обробки поля пошуку(сабміта), приймає та оновляє
-  const getSubmitValue = (value) => {
-    if (value.trim() === "") {
-      toast.error("Enter a search query!");
-      return;
-    }
+    renderGallery();
+  }, [query, page]);
 
-    setSearchValue(value);
+  const getInputValue = newQuery => {
+    if (newQuery === query) return;
+    setQuery(newQuery);
+    setImages([]);
     setPage(1);
   };
 
-  const handleChangePage = () => {
-    setPage((prev) => prev + 1);
-  };
-
-  const openModal = (imageUrl) => {
-    console.log("Modal opened with image:", imageUrl);
-    setSelectedImage(imageUrl);
-    setModalIsOpen(true);
+  const handleImageClick = image => {
+    setSelectedImage(image);
+    setIsModalOpen(true);
   };
 
   const closeModal = () => {
-    setModalIsOpen(false);
     setSelectedImage(null);
+    setIsModalOpen(false);
   };
 
+  useLayoutEffect(() => {
+    if (galleryRef.current && images.length > 0) {
+      const { height: cardHeight } = galleryRef.current.firstElementChild.getBoundingClientRect();
+
+      window.scrollBy({
+        top: cardHeight * 1,
+        behavior: 'smooth',
+      });
+    }
+  }, [images]);
+
   return (
-    <div>
-      <SearchBar onSubmit={getSubmitValue} />
+    <>
+      <SearchBar onSubmit={getInputValue} />
+      <Toaster />
+      <div className={s.container}>
+        {error ? (
+          <ErrorMessage message={error} />
+        ) : (
+          images.length > 0 && (
+            <ImageGallery images={images} ref={galleryRef} onImageClick={handleImageClick} />
+          )
+        )}
+      </div>
       {isLoading && <Loader />}
-      {isError && <ErrorMessage />}
-      {articles.length > 0 && (
-        <ImageGallery articles={articles} openModal={openModal} />
-      )}
-      {articles.length > 0 && page < totalPages && (
-        <LoadMoreBtn onLoadMore={handleChangePage} />
-      )}
-      {selectedImage && (
-        <ImageModal
-          modalIsOpen={modalIsOpen}
-          closeModal={closeModal}
-          imageUrl={selectedImage}
-          imageAlt="Selected Image"
-        />
-      )}
-    </div>
+      {isShowButton && <LoadMoreBtn onClick={() => setPage(page => page + 1)} />}
+      <ImageModal isOpen={isModalOpen} onClose={closeModal} image={selectedImage} />
+    </>
   );
-}
+};
 
 export default App;
